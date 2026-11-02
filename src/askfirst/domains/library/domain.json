@@ -1,0 +1,11 @@
+{
+  "name": "library",
+  "description": "A small public library: members borrow books and review them.",
+  "as_of_query": "SELECT value FROM _askfirst_meta WHERE key = 'as_of'",
+  "notes": [
+    "loans.returned_on IS NULL means the book is still checked out.",
+    "A loan is overdue when returned_on IS NULL and due_on is earlier than TODAY.",
+    "A member has 'never borrowed' if they have no rows in loans.",
+    "Dates are ISO text (YYYY-MM-DD); compare them as text or with date()/strftime()."
+  ]
+}

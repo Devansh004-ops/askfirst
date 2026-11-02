@@ -1,0 +1,76 @@
+[
+  {
+    "id": "book_ranking",
+    "term": "popular / best (books)",
+    "question": "How should books be ranked?",
+    "when_all": [
+      "\\b(popular|popularity|favou?rite|best[- ]?sell\\w*|best|top|greatest)\\b",
+      "\\b(books?|titles?)\\b"
+    ],
+    "unless": [
+      "\\b(loans?|loaned|borrow\\w*|reviews?|reviewed|ratings?|rated|readers?|checked out)\\b"
+    ],
+    "options": [
+      {"id": "loans", "label": "Most loans (times borrowed)", "default": true,
+       "hint": "Rank books by how many loans they have: COUNT of rows in loans per book, highest first."},
+      {"id": "borrowers", "label": "Most different borrowers",
+       "hint": "Rank books by the number of distinct members who borrowed them: COUNT(DISTINCT member_id) in loans per book."},
+      {"id": "rating", "label": "Highest average rating",
+       "hint": "Rank books by AVG(rating) from reviews, considering only books with at least 3 reviews."}
+    ]
+  },
+  {
+    "id": "member_ranking",
+    "term": "top / best (members)",
+    "question": "How should members be ranked?",
+    "when_all": [
+      "\\b(top|best|biggest|heaviest|most active|greatest)\\b",
+      "\\b(members?|patrons?|readers?|borrowers?)\\b"
+    ],
+    "unless": [
+      "\\b(loans?|borrow\\w*|reviews?|checked out)\\b"
+    ],
+    "options": [
+      {"id": "loans", "label": "Most loans overall", "default": true,
+       "hint": "Rank members by their total number of loans (COUNT of rows in loans per member)."},
+      {"id": "books", "label": "Most different books borrowed",
+       "hint": "Rank members by COUNT(DISTINCT book_id) in loans per member."},
+      {"id": "recent", "label": "Most loans in the last 90 days",
+       "hint": "Rank members by number of loans whose loaned_on is within the 90 days up to TODAY."}
+    ]
+  },
+  {
+    "id": "recent_window",
+    "term": "recent",
+    "question": "How far back is \"recent\"?",
+    "when_all": ["\\b(recent|recently|lately)\\b"],
+    "unless": [
+      "\\b(last|past|previous)\\s+\\d+\\s+(days?|weeks?|months?)\\b",
+      "\\b(this|last)\\s+(week|month|year)\\b",
+      "\\b(today|yesterday)\\b"
+    ],
+    "options": [
+      {"id": "7d", "label": "The last 7 days",
+       "hint": "Treat \"recent\" as the 7 days up to and including TODAY (date >= date(TODAY, '-7 day'))."},
+      {"id": "30d", "label": "The last 30 days", "default": true,
+       "hint": "Treat \"recent\" as the 30 days up to and including TODAY (date >= date(TODAY, '-30 day'))."},
+      {"id": "90d", "label": "The last 90 days",
+       "hint": "Treat \"recent\" as the 90 days up to and including TODAY (date >= date(TODAY, '-90 day'))."}
+    ]
+  },
+  {
+    "id": "active_members",
+    "term": "active (members)",
+    "question": "What makes a member \"active\"?",
+    "when_all": ["\\bactive\\b", "\\b(members?|patrons?|readers?|borrowers?)\\b"],
+    "unless": ["\\bmost active\\b", "\\b(last|past)\\s+\\d+\\s+days?\\b"],
+    "options": [
+      {"id": "loan_30d", "label": "Borrowed something in the last 30 days", "default": true,
+       "hint": "A member is active if they have a loan with loaned_on within the 30 days up to TODAY."},
+      {"id": "open_loan", "label": "Currently has a book on loan",
+       "hint": "A member is active if they have at least one loan with returned_on IS NULL."},
+      {"id": "loan_90d", "label": "Borrowed something in the last 90 days",
+       "hint": "A member is active if they have a loan with loaned_on within the 90 days up to TODAY."}
+    ]
+  }
+]

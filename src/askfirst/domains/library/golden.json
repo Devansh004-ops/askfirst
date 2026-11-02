@@ -1,0 +1,124 @@
+[
+  {
+    "id": "c01",
+    "question": "How many books are currently on loan?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM loans WHERE returned_on IS NULL"
+  },
+  {
+    "id": "c02",
+    "question": "List the titles of books published after 2015.",
+    "kind": "clear",
+    "expected_sql": "SELECT title FROM books WHERE published_year > 2015"
+  },
+  {
+    "id": "c03",
+    "question": "How many members belong to the Riverside branch?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM members WHERE branch = 'Riverside'"
+  },
+  {
+    "id": "c04",
+    "question": "Which loans are overdue?",
+    "kind": "clear",
+    "expected_sql": "SELECT loan_id FROM loans WHERE returned_on IS NULL AND due_on < '{today}'"
+  },
+  {
+    "id": "c05",
+    "question": "How many books are in the Mystery genre?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM books WHERE genre = 'Mystery'"
+  },
+  {
+    "id": "c06",
+    "question": "What is the average review rating across all books?",
+    "kind": "clear",
+    "expected_sql": "SELECT AVG(rating) FROM reviews"
+  },
+  {
+    "id": "c07",
+    "question": "How many loans were made in 2025?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM loans WHERE strftime('%Y', loaned_on) = '2025'"
+  },
+  {
+    "id": "c08",
+    "question": "Which authors have more than one book in the catalogue?",
+    "kind": "clear",
+    "expected_sql": "SELECT author FROM books GROUP BY author HAVING COUNT(*) > 1"
+  },
+  {
+    "id": "c09",
+    "question": "How many members have never borrowed a book?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM members m WHERE NOT EXISTS (SELECT 1 FROM loans l WHERE l.member_id = m.member_id)"
+  },
+  {
+    "id": "c10",
+    "question": "What are the top 3 books by number of loans?",
+    "kind": "clear",
+    "expected_sql": "SELECT b.title FROM books b JOIN loans l ON l.book_id = b.book_id GROUP BY b.book_id ORDER BY COUNT(*) DESC LIMIT 3",
+    "ordered": true
+  },
+  {
+    "id": "c11",
+    "question": "How many loans were made in the last 14 days?",
+    "kind": "clear",
+    "expected_sql": "SELECT COUNT(*) FROM loans WHERE loaned_on >= date('{today}', '-14 day')"
+  },
+  {
+    "id": "a01",
+    "question": "What is the most popular book?",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT b.title FROM books b JOIN reviews r ON r.book_id = b.book_id GROUP BY b.book_id HAVING COUNT(*) >= 3 ORDER BY AVG(r.rating) DESC LIMIT 1",
+    "answers": {
+      "book_ranking": "rating"
+    }
+  },
+  {
+    "id": "a02",
+    "question": "What is the best book?",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT b.title FROM books b JOIN loans l ON l.book_id = b.book_id GROUP BY b.book_id ORDER BY COUNT(DISTINCT l.member_id) DESC LIMIT 1",
+    "answers": {
+      "book_ranking": "borrowers"
+    }
+  },
+  {
+    "id": "a03",
+    "question": "Who is our top member?",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT m.name FROM members m JOIN loans l ON l.member_id = m.member_id GROUP BY m.member_id ORDER BY COUNT(DISTINCT l.book_id) DESC LIMIT 1",
+    "answers": {
+      "member_ranking": "books"
+    }
+  },
+  {
+    "id": "a04",
+    "question": "Show me recent loans",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT loan_id FROM loans WHERE loaned_on >= date('{today}', '-7 day')",
+    "answers": {
+      "recent_window": "7d"
+    }
+  },
+  {
+    "id": "a05",
+    "question": "How many active members do we have?",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT COUNT(DISTINCT member_id) FROM loans WHERE returned_on IS NULL",
+    "answers": {
+      "active_members": "open_loan"
+    }
+  },
+  {
+    "id": "a06",
+    "question": "Which member has been most active recently?",
+    "kind": "ambiguous",
+    "expected_sql": "SELECT m.name FROM members m JOIN loans l ON l.member_id = m.member_id WHERE l.loaned_on >= date('{today}', '-90 day') GROUP BY m.member_id ORDER BY COUNT(*) DESC LIMIT 1",
+    "answers": {
+      "member_ranking": "loans",
+      "recent_window": "90d"
+    }
+  }
+]
