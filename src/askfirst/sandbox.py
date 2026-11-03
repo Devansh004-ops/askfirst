@@ -145,7 +145,7 @@ class ReadOnlyDB:
             cursor = conn.execute(sql)
             columns = [d[0] for d in (cursor.description or [])]
             rows = cursor.fetchmany(limit + 1)
-        except sqlite3.ProgrammingError as exc:  # e.g. "only one statement at a time"
+        except (sqlite3.ProgrammingError, sqlite3.Warning) as exc:  # "only one statement at a time" (Warning before Python 3.11)
             raise UnsafeQueryError(str(exc)) from None
         except sqlite3.DatabaseError as exc:
             if timed_out:
