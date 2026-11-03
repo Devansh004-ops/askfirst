@@ -18,6 +18,10 @@ classifiers = [
 ]
 dependencies = []                      # the core is pure standard library
 
+[project.urls]
+Homepage = "https://github.com/Devansh004-ops/askfirst"
+Issues = "https://github.com/Devansh004-ops/askfirst/issues"
+
 [project.optional-dependencies]
 gemini = ["google-genai>=1.0"]
 dev = ["pytest>=8"]
